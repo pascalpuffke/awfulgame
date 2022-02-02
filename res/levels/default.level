@@ -1,0 +1,63 @@
+# This is a comment
+# Layer 0 (bg) is filled with grass tiles by default
+
+name main_map
+size 24 18
+
+tile 10 6 1 flower-0
+
+tile 10 0 1 tree-single-0
+tile 11 0 1 tree-single-1
+tile 10 1 1 tree-single-2
+tile 11 1 1 tree-single-3
+tile 12 0 1 tree-single-0
+tile 13 0 1 tree-single-1
+tile 12 1 1 tree-single-2
+tile 13 1 1 tree-single-3
+tile 14 0 1 tree-single-0
+tile 15 0 1 tree-single-1
+tile 14 1 1 tree-single-2
+tile 15 1 1 tree-single-3
+
+#    x y l name
+tile 0 0 0 grass-top-left
+tile 1 0 0 grass-top-mid
+tile 2 0 0 grass-top-right
+tile 0 1 0 grass-mid-left
+tile 1 1 0 dirt-0
+tile 2 1 0 grass-mid-right
+tile 0 2 0 grass-bot-left
+tile 1 2 0 grass-bot-mid
+tile 2 2 0 grass-bot-right
+
+#   fxfytxty l name
+fill 4 4 7 8 0 dirt-0
+tile 6 7 0     dirt-1
+tile 5 5 0     dirt-2
+
+
+tile 4 4 0 grass-top-left
+tile 5 4 0 grass-top-mid
+tile 6 4 0 grass-top-mid
+tile 7 4 0 grass-top-right
+
+tile 4 5 0 grass-mid-left
+tile 4 6 0 grass-mid-left
+tile 4 7 0 grass-mid-left
+tile 7 5 0 grass-mid-right
+tile 7 6 0 grass-mid-right
+tile 7 7 0 grass-mid-right
+
+tile 4 8 0 grass-bot-left
+tile 5 8 0 grass-bot-mid
+tile 6 8 0 grass-bot-mid
+tile 7 8 0 grass-bot-right
+
+tile 5 2 0 grass-1
+tile 13 5 0 grass-1
+tile 11 8 0 grass-2
+tile 4 9 0 grass-2
+tile 2 7 0 grass-3
+tile 8 10 0 grass-3
+tile 9 1 0 grass-4
+tile 0 11 0 grass-4
