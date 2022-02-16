@@ -26,16 +26,22 @@ set(SOURCES
     src/entity/PlayerEntity.cpp)
 
 CPMAddPackage(
-        NAME robin-hood-hashing
-        VERSION 3.11.5
-        GITHUB_REPOSITORY martinus/robin-hood-hashing
-        GIT_TAG 3.11.5
+    NAME robin-hood-hashing
+    VERSION 3.11.5
+    GITHUB_REPOSITORY martinus/robin-hood-hashing
+    GIT_TAG 3.11.5
 )
 CPMAddPackage(
     NAME fmt
     VERSION 8.1.1
     GITHUB_REPOSITORY fmtlib/fmt
     GIT_TAG 8.1.1
+)
+CPMAddPackage(
+    NAME cxxopts
+    VERSION 3.0.0
+    GITHUB_REPOSITORY jarro2783/cxxopts
+    GIT_TAG v3.0.0
 )
 CPMAddPackage(
     NAME raylib

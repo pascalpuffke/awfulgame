@@ -29,6 +29,7 @@
 #include "registries/SoundRegistry.h"
 #include "registries/TextureRegistry.h"
 #include "resources/TilesetLoader.h"
+#include "util/Arguments.h"
 #include "util/Benchmarking.h"
 #include "util/Constants.h"
 #include "util/Direction.h"
@@ -298,10 +299,11 @@ bool checkWorkingDirectory()
     return false;
 }
 
-int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv)
+int main(int argc, char **argv)
 {
     SetTraceLogCallback(log);
 
+    auto config = Arguments::parseArguments(argc, argv);
     auto window = raylib::Window(WIDTH, HEIGHT, "");
 
     if (!checkWorkingDirectory()) {
@@ -354,7 +356,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv)
     fmt::print("Level name: {}\n", level.name());
     fmt::print("Level size: {}x{} tiles\n", level.width(), level.height());
 
-    window.SetTargetFPS(VSYNC_ENABLED ? GetMonitorRefreshRate(GetCurrentMonitor()) : FPS);
+    window.SetTargetFPS(config.vsync ? GetMonitorRefreshRate(GetCurrentMonitor()) : config.fps);
 
     auto frame_time = 0.0f;
     // undef this if it annoys you :)

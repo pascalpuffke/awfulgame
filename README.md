@@ -4,6 +4,17 @@ I honestly have no idea anymore
 
 ![preview](preview.png)
 
+## Command-line options
+
+`-f`, `--fps <value>`: Target framerate. Defaults to signed 32-bit integer limit (practically unlimited).
+
+`-h`, `--help`: Show a help message.
+
+`-r`, `--res`: Set a custom resource folder. Defaults to `../res` (assumes you're executing from the build directory).
+Should the program fail to find the resource folder, it will show you an error message.
+
+`-v`, `--vsync`: Enable vertical synchronization.
+
 ## Goal
 
 There is none. I'm simply wasting time.
@@ -14,7 +25,7 @@ There is none. I'm simply wasting time.
 - Textures, sounds etc. largely thanks to raylib
 - Tileset loading
 - Dynamic level loading
-  - Levels are defined using external files (see res/levels/default.level)
+    - Levels are defined using external files (see res/levels/default.level)
 - Registries that make handling resources kinda nice
 - It actually compiles and seemingly works fine? (A first for me in this language!)
 - Yeah there's nothing interesting here
@@ -27,7 +38,7 @@ Only tested on Arch Linux, probably works under Windows too, can't test on a Mac
 
 Inside the project root directory:
 
-`# pacman -S gcc cmake ninja raylib fmt` (substitute pacman with your package manager.)
+`# pacman -S gcc cmake ninja raylib fmt cxxopts` (substitute pacman with your package manager.)
 
 `$ mkdir build && cd build`
 
@@ -46,4 +57,6 @@ If this thing still doesn't build, you aren't missing out on much.
 - raylib-cpp bindings I actually don't really use: https://github.com/robloach/raylib-cpp
 - Friendship ended with iostreams, now fmt is my best friend: https://github.com/fmtlib/fmt
 - More efficient hash tables: https://github.com/martinus/robin-hood-hashing
-- This makes using CMake slightly more bearable, though it's still awful please get me out of this hell: https://github.com/cpm-cmake/CPM.cmake
+- Command line option parsing: https://github.com/jarro2783/cxxopts
+- This makes using CMake slightly more bearable, though it's still awful please get me out of this
+  hell: https://github.com/cpm-cmake/CPM.cmake
