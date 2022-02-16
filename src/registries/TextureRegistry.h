@@ -12,21 +12,21 @@ public:
     {
     }
 
-    virtual ~TextureRegistry() override
+    ~TextureRegistry() override
     {
-        for (auto& [_, texture] : m_registry) {
+        for (auto&[_, texture] : m_registry) {
             UnloadTexture(*texture);
         }
     }
 
-    void loadFile(const std::string& key, const std::string& path)
+    void loadFile(const std::string &key, const std::string &path)
     {
         load(key, LoadTexture(path.c_str()));
     }
 
-    void loadFiles(const std::unordered_map<std::string, std::string>& files)
+    void loadFiles(const robin_hood::unordered_map<std::string, std::string> &files)
     {
-        for (const auto& [key, path] : files) {
+        for (const auto&[key, path] : files) {
             loadFile(key, path);
         }
     }

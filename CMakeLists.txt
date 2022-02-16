@@ -2,7 +2,12 @@ cmake_minimum_required(VERSION 3.14 FATAL_ERROR)
 
 project(Game LANGUAGES CXX)
 
-set(CPM_DOWNLOAD_VERSION 0.32.0) 
+if(CMAKE_BUILD_TYPE)
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -O0")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O0")
+endif()
+
+set(CPM_DOWNLOAD_VERSION 0.35.0)
 set(CPM_DOWNLOAD_LOCATION "${CMAKE_BINARY_DIR}/cmake/CPM_${CPM_DOWNLOAD_VERSION}.cmake")
 if(NOT (EXISTS ${CPM_DOWNLOAD_LOCATION}))
   message(STATUS "Downloading CPM.cmake v${CPM_DOWNLOAD_VERSION}")
@@ -10,7 +15,7 @@ if(NOT (EXISTS ${CPM_DOWNLOAD_LOCATION}))
 endif()
 include(${CPM_DOWNLOAD_LOCATION})
 
-set(SOURCES 
+set(SOURCES
     src/main.cpp
     src/util/Benchmarking.cpp
     src/resources/TilesetLoader.cpp
@@ -18,8 +23,14 @@ set(SOURCES
     src/level/LevelLoader.cpp
     src/entity/BaseEntity.cpp
     src/entity/AnimatedEntity.cpp
-)
+    src/entity/PlayerEntity.cpp)
 
+CPMAddPackage(
+        NAME robin-hood-hashing
+        VERSION 3.11.5
+        GITHUB_REPOSITORY martinus/robin-hood-hashing
+        GIT_TAG 3.11.5
+)
 CPMAddPackage(
     NAME fmt
     VERSION 8.1.1
@@ -34,9 +45,9 @@ CPMAddPackage(
 )
 CPMAddPackage(
     NAME raylib-cpp
-    VERSION 4.0.4
+    VERSION 4.1.0
     GITHUB_REPOSITORY robloach/raylib-cpp
-    GIT_TAG v4.0.4
+    GIT_TAG v4.1.0
 )
 
 add_executable(${PROJECT_NAME} ${SOURCES})

@@ -7,31 +7,43 @@
 #include <optional>
 #include <raylib-cpp.hpp>
 #include <string>
-#include <unordered_map>
+#include <robin_hood.h>
 
 namespace Entity {
 
 class BaseEntity {
 public:
-    BaseEntity(State& state, const std::unordered_map<Direction, std::string>& textures, Direction facing);
+    BaseEntity(State &state,
+               robin_hood::unordered_map<Direction, std::string> &&textures,
+               Direction facing,
+               float animationSpeed);
 
     virtual ~BaseEntity();
 
     virtual void move(Direction direction);
 
-    virtual std::optional<std::shared_ptr<Texture2D>> texture() const;
-    virtual std::string_view textureKey() const;
-    raylib::Vector2 position() const;
-    Direction facing() const;
+    virtual void update(float deltaTime);
+
+    [[nodiscard]] virtual std::optional<std::shared_ptr<Texture2D>> texture() const;
+
+    [[maybe_unused]] [[nodiscard]] virtual std::string_view textureKey() const;
+
+    [[nodiscard]] raylib::Vector2 position() const;
+
+    [[nodiscard]] Direction facing() const;
 
 protected:
-    constexpr bool inBounds(const raylib::Vector2& position);
+    [[nodiscard]] constexpr bool inBounds(const raylib::Vector2 &position) const;
+
+    const float m_animationSpeed;
+    float m_animationTimer = 0.0f;
+    uint32_t m_currentFrame = 0;
 
     raylib::Vector2 m_position = { 8.0f * SCALED_TEXTURE_RES, 6.0f * SCALED_TEXTURE_RES };
-    State& m_state;
+    State &m_state;
     Direction m_facing;
 
-    const std::unordered_map<Direction, std::string> m_textures;
+    const robin_hood::unordered_map<Direction, std::string> m_textures;
 };
 
 } // namespace Entity

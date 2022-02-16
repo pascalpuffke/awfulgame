@@ -39,10 +39,11 @@ Inside the project root directory:
 
 If this thing still doesn't build, you aren't missing out on much.
 
-## Credits
+## Credits and used libraries
 
 - 'Ninja Adventure' asset pack: https://pixel-boy.itch.io/ninja-adventure-asset-pack
 - The amazing raylib library: https://www.raylib.com/
 - raylib-cpp bindings I actually don't really use: https://github.com/robloach/raylib-cpp
 - Friendship ended with iostreams, now fmt is my best friend: https://github.com/fmtlib/fmt
+- More efficient hash tables: https://github.com/martinus/robin-hood-hashing
 - This makes using CMake slightly more bearable, though it's still awful please get me out of this hell: https://github.com/cpm-cmake/CPM.cmake

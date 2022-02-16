@@ -1,0 +1,9 @@
+build/
+cmake-build-release/
+cmake-build-debug/
+out/
+.vscode/
+.vs/
+.cache/
+.idea/
+res/sounds/music.wav

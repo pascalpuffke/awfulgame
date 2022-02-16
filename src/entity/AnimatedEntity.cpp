@@ -6,23 +6,20 @@
 
 namespace Entity {
 
-AnimatedEntity::AnimatedEntity(State& state, const std::unordered_map<Direction, std::vector<std::string>>& frames, float animationSpeed, Direction facing = Direction::NORTH)
+AnimatedEntity::AnimatedEntity(State &state, robin_hood::unordered_map<Direction, std::vector<std::string>> &&frames,
+                               float animationSpeed, Direction facing = Direction::NORTH)
     : BaseEntity(state, {
-                            { Direction::NORTH, frames.at(Direction::NORTH).at(0) },
-                            { Direction::EAST, frames.at(Direction::EAST).at(0) },
-                            { Direction::SOUTH, frames.at(Direction::SOUTH).at(0) },
-                            { Direction::WEST, frames.at(Direction::WEST).at(0) },
-                        },
-        facing)
-    , m_animationSpeed(animationSpeed)
-    , m_frames(frames)
+    { Direction::NORTH, frames.at(Direction::NORTH).at(0) },
+    { Direction::EAST, frames.at(Direction::EAST).at(0) },
+    { Direction::SOUTH, frames.at(Direction::SOUTH).at(0) },
+    { Direction::WEST, frames.at(Direction::WEST).at(0) },
+}, facing, animationSpeed), m_frames(std::move(frames))
 {
-    fmt::print(fg(fmt::color::light_green), "[AnimatedEntity] Created with {} frames\n", m_frames.at(m_facing).size());
+    fmt::print(fg(fmt::color::light_green), "[AnimatedEntity] Created with {} frames\n",
+               m_frames.at(m_facing).size());
 }
 
-AnimatedEntity::~AnimatedEntity() = default;
-
-void AnimatedEntity::update(const float deltaTime)
+void AnimatedEntity::update(float deltaTime)
 {
     m_animationTimer += deltaTime;
     if (m_animationTimer >= m_animationSpeed) {

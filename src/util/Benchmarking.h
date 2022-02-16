@@ -5,10 +5,11 @@
 
 namespace Benchmark {
 
-class Timer final {
+class ScopedTimer final {
 public:
-    Timer(const std::string& name);
-    ~Timer();
+    explicit ScopedTimer(std::string &&name);
+
+    ~ScopedTimer();
 
 private:
     std::chrono::high_resolution_clock::time_point m_start;
