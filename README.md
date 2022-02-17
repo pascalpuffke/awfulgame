@@ -6,11 +6,13 @@ I honestly have no idea anymore
 
 ## Command-line options
 
+`-d`, `--debug`: Start game in debug mode, can also be toggled in-game by pressing `Q`
+
 `-f`, `--fps <value>`: Target framerate. Defaults to signed 32-bit integer limit (practically unlimited).
 
 `-h`, `--help`: Show a help message.
 
-`-r`, `--res`: Set a custom resource folder. Defaults to `../res` (assumes you're executing from the build directory).
+`-r`, `--res <path>`: Set a custom resource folder. Defaults to `../res` (assumes you're executing from the build directory).
 Should the program fail to find the resource folder, it will show you an error message.
 
 `-v`, `--vsync`: Enable vertical synchronization.
