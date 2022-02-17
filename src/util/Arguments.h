@@ -7,6 +7,7 @@ namespace Arguments {
 
 struct Configuration {
     bool vsync {};
+    bool debug {};
     int32_t fps {};
     std::string resourcePath {}; // TODO
 };
@@ -18,6 +19,7 @@ Configuration parseArguments(int argc, char **argv)
         ("h,help", "Print help")
         ("r,res", "Set resource folder", cxxopts::value<std::string>()->default_value("../res"))
         ("f,fps", "Max FPS", cxxopts::value<int32_t>()->default_value(std::to_string(std::numeric_limits<int>::max())))
+        ("d,debug", "Start in debugging mode", cxxopts::value<bool>()->default_value("false"))
         ("v,vsync", "Enable vertical synchronization", cxxopts::value<bool>()->default_value("false"));
     options.allow_unrecognised_options();
 
@@ -34,6 +36,7 @@ Configuration parseArguments(int argc, char **argv)
 
     return Configuration {
         .vsync = result["vsync"].as<bool>(),
+        .debug = result["debug"].as<bool>(),
         .fps = result["fps"].as<int32_t>(),
         .resourcePath = result["res"].as<std::string>()
     };

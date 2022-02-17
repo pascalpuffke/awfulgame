@@ -1,18 +1,6 @@
 #pragma once
 
-namespace Level {
-class Level;
-}
-
-namespace Registries {
-class TextureRegistry;
-
-class CommandRegistry;
-
-class SoundRegistry;
-
-class MusicRegistry;
-}
+#include "Forward.h"
 
 struct State {
     Level::Level &level;
@@ -20,4 +8,5 @@ struct State {
     Registries::CommandRegistry &commands;
     Registries::SoundRegistry &sounds;
     Registries::MusicRegistry &music;
+    Registries::ShaderRegistry &shaders;
 };

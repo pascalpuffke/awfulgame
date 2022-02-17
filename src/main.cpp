@@ -28,6 +28,7 @@
 #include "registries/MusicRegistry.h"
 #include "registries/SoundRegistry.h"
 #include "registries/TextureRegistry.h"
+#include "registries/ShaderRegistry.h"
 #include "resources/TilesetLoader.h"
 #include "util/Arguments.h"
 #include "util/Benchmarking.h"
@@ -277,6 +278,12 @@ void loadMusic(Registries::MusicRegistry &musicRegistry)
     musicRegistry.loadFile("main", "../res/sounds/music.wav");
 }
 
+void loadShaders(Registries::ShaderRegistry &shaderRegistry)
+{
+    auto timer = Benchmark::ScopedTimer("loadShaders()");
+    shaderRegistry.loadFile("blur", nullptr, "../res/shaders/fragment/blur.glsl");
+}
+
 void loadLevel(Level::LevelLoader &loader)
 {
     if (std::filesystem::exists("../res/levels/savestate.level")) {
@@ -323,6 +330,7 @@ int main(int argc, char **argv)
     auto commandRegistry = Registries::CommandRegistry();
     auto soundRegistry = Registries::SoundRegistry();
     auto musicRegistry = Registries::MusicRegistry();
+    auto shaderRegistry = Registries::ShaderRegistry();
 
     InitAudioDevice();
 
@@ -330,6 +338,7 @@ int main(int argc, char **argv)
     loadCommands(commandRegistry);
     loadSounds(soundRegistry);
     loadMusic(musicRegistry);
+    loadShaders(shaderRegistry);
 
     auto state = State {
         .level = level,
@@ -337,6 +346,7 @@ int main(int argc, char **argv)
         .commands = commandRegistry,
         .sounds = soundRegistry,
         .music = musicRegistry,
+        .shaders = shaderRegistry,
     };
     auto player = Entity::PlayerEntity(state, {
         { Direction::NORTH, { "player-north-0", "player-north-1", "player-north-2", "player-north-3" }},
@@ -358,34 +368,27 @@ int main(int argc, char **argv)
 
     window.SetTargetFPS(config.vsync ? GetMonitorRefreshRate(GetCurrentMonitor()) : config.fps);
 
-    auto frame_time = 0.0f;
+    auto frameTime = 0.0f;
     // undef this if it annoys you :)
 #define FPS_THREAD
 #ifdef FPS_THREAD
     std::thread([&]() {
         while (!window.ShouldClose()) {
-            if (frame_time != 0.0f)
+            if (frameTime != 0.0f)
                 fmt::print("{:.3f}ms/frame {}fps ({:.3f}ms)\n",
                            window.GetFrameTime() * 1000.0f,
                            window.GetFPS(),
-                           frame_time);
+                           frameTime);
             std::this_thread::sleep_for(std::chrono::seconds(2));
         }
     }).detach();
 #endif
 
-    // TODO: The game spends most of its time right here, fetching texture resources hundreds of thousands of times per second.
-    //       This is a performance bottleneck and actually makes this more expensive than rendering, at least with unlocked FPS.
-    //       We should probably move the texture loading to a separate thread or stop fetching every texture every frame.
-    auto getTexture = [&](const std::string &name) {
-        try {
-            return *(*textureRegistry.get(name));
-        }
-        catch (std::bad_optional_access &e) {
-            fmt::print(fg(fmt::color::yellow), "WARN: Texture '{}' not found\n", name);
-            return *(*textureRegistry.get("grass-0"));
-        }
-    };
+    auto shader = false;
+    auto frameBuffer = LoadRenderTexture(WIDTH, HEIGHT);
+    const auto blurShader = **shaderRegistry.get("blur");
+    const auto size = Vector2 { WIDTH, HEIGHT };
+    SetShaderValue(blurShader, GetShaderLocation(blurShader, "size"), &size, SHADER_UNIFORM_VEC2);
 
     while (!window.ShouldClose()) {
         if (IsKeyPressed(KEY_W))
@@ -396,11 +399,15 @@ int main(int argc, char **argv)
             player.move(Direction::WEST);
         if (IsKeyPressed(KEY_D))
             player.move(Direction::EAST);
+        if (IsKeyPressed(KEY_Q))
+            config.debug = !config.debug;
+        if (IsKeyPressed(KEY_E))
+            shader = !shader;
 
         camera.SetTarget(player.position());
 
         const auto start = std::chrono::high_resolution_clock::now();
-        window.BeginDrawing();
+        BeginTextureMode(frameBuffer);
         {
             ClearBackground(BLACK);
             BeginMode2D(camera);
@@ -421,30 +428,71 @@ int main(int argc, char **argv)
 
                 DrawTextureEx(**player.texture(), player.position(), 0.0f, SCALE, WHITE);
 
-                const auto mousePos = Vector2Add(GetMousePosition(),
-                                                 Vector2Subtract(camera.GetTarget(), camera.GetOffset()));
-                const auto tilePos = IntPoint {
-                    static_cast<int32_t>(mousePos.x / SCALED_TEXTURE_RES),
-                    static_cast<int32_t>(mousePos.y / SCALED_TEXTURE_RES)
-                };
+                if (config.debug) {
+                    const auto mousePos = Vector2Add(GetMousePosition(),
+                                                     Vector2Subtract(camera.GetTarget(), camera.GetOffset()));
+                    const auto tilePos = IntPoint {
+                        static_cast<int32_t>(mousePos.x / SCALED_TEXTURE_RES),
+                        static_cast<int32_t>(mousePos.y / SCALED_TEXTURE_RES)
+                    };
 
-                if (tilePos.inBounds(level.size())) {
-                    const auto tile = level.tileAt(tilePos).c_str();
-                    DrawRectangle(mousePos.x + 16, mousePos.y, MeasureText(tile, 20) + 5, 45, WHITE);
-                    DrawText(TextFormat("(%d %d)", tilePos.x, tilePos.y), mousePos.x + 16, mousePos.y, 20, BLACK);
-                    DrawText(tile, mousePos.x + 16, mousePos.y + 20, 20, BLACK);
+                    if (tilePos.inBounds(level.size())) {
+                        const auto tile = level.tileAt(tilePos).c_str();
+                        DrawRectangle(mousePos.x + 16, mousePos.y, MeasureText(tile, 20) + 5, 45, WHITE);
+                        DrawText(TextFormat("(%d %d)", tilePos.x, tilePos.y), mousePos.x + 16, mousePos.y, 20, BLACK);
+                        DrawText(tile, mousePos.x + 16, mousePos.y + 20, 20, BLACK);
+                    }
                 }
             }
             EndMode2D();
+        }
+        EndTextureMode();
 
-            DrawFPS(10, 10);
-            DrawTexture(getTexture("vignette"), 0, 0, WHITE);
+        window.BeginDrawing();
+        {
+            ClearBackground(BLACK);
+
+            if (shader) {
+                // TODO Two passes (horizontal and vertical)
+                BeginShaderMode(blurShader);
+                {
+                    DrawTextureRec(frameBuffer.texture,
+                                   Rectangle { 0, 0, (float) frameBuffer.texture.width,
+                                               (float) -frameBuffer.texture.height },
+                                   Vector2 { 0, 0 },
+                                   WHITE);
+                }
+                EndShaderMode();
+            } else {
+                DrawTextureRec(frameBuffer.texture,
+                               Rectangle { 0, 0, (float) frameBuffer.texture.width,
+                                           (float) -frameBuffer.texture.height },
+                               Vector2 { 0, 0 },
+                               WHITE);
+            }
+
+            if (config.debug) {
+                DrawText(TextFormat("FPS: %d (%.02f ms)", window.GetFPS(), frameTime), 10, 10, 20, ORANGE);
+                DrawText(TextFormat("Player pos: [x=%.0f, y=%.0f]", player.position().x, player.position().y),
+                         10,
+                         30,
+                         20,
+                         PINK);
+                DrawText(TextFormat("Camera: pos=[x=%.0f, y=%.0f], target=[x=%.0f, y=%.0f], zoom=%.02f, rot=%.02f",
+                                    camera.GetOffset().x,
+                                    camera.GetOffset().y,
+                                    camera.GetTarget().x,
+                                    camera.GetTarget().y,
+                                    camera.GetZoom(),
+                                    camera.GetRotation()), 10, 50, 20, RED);
+            }
+            DrawTexture(**textureRegistry.get("vignette"), 0, 0, WHITE);
         }
         window.EndDrawing();
 
-        frame_time = std::chrono::duration_cast<std::chrono::microseconds>(
+        frameTime = std::chrono::duration_cast<std::chrono::microseconds>(
             std::chrono::high_resolution_clock::now() - start).count() / 1000.0f;
-        player.update(frame_time);
+        player.update(frameTime);
     }
 
     levelLoader.save("../res/levels/savestate.level");

@@ -23,8 +23,7 @@ set(SOURCES
         src/level/LevelLoader.cpp
         src/entity/BaseEntity.cpp
         src/entity/AnimatedEntity.cpp
-        src/entity/PlayerEntity.cpp
-        src/screens/GameScreen.cpp)
+        src/entity/PlayerEntity.cpp)
 
 CPMAddPackage(
         NAME robin-hood-hashing
