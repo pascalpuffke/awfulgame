@@ -8,27 +8,16 @@ namespace Registries {
 class TextureRegistry final : public Registry<Texture2D> {
 public:
     TextureRegistry()
-        : Registry("TextureRegistry")
+            : Registry("TextureRegistry")
     {
     }
 
     ~TextureRegistry() override
     {
-        for (auto&[_, texture] : m_registry) {
+        for (auto &[_, texture]: m_registry) {
             UnloadTexture(*texture);
         }
     }
-
-    void loadFile(const std::string &key, const std::string &path)
-    {
-        load(key, LoadTexture(path.c_str()));
-    }
-
-    void loadFiles(const robin_hood::unordered_map<std::string, std::string> &files)
-    {
-        for (const auto&[key, path] : files) {
-            loadFile(key, path);
-        }
-    }
 };
+
 } // namespace Registries

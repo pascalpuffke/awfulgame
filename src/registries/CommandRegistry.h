@@ -10,7 +10,7 @@ namespace Registries {
 class CommandRegistry final : public Registry<std::function<void(State &, std::vector<std::string_view>)>> {
 public:
     CommandRegistry()
-        : Registry("CommandRegistry")
+            : Registry("CommandRegistry")
     {
     }
 };
