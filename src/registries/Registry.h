@@ -13,7 +13,7 @@ template <typename T>
 class Registry {
 public:
     explicit Registry(std::string &&name)
-        : m_name(std::move(name))
+            : m_name(std::move(name))
     {
     }
 
@@ -30,9 +30,9 @@ public:
         fmt::print(fg(fmt::color::light_green), "[{}] Registered resource {}\n", m_name, key);
     }
 
-    virtual void loadAll(const robin_hood::unordered_map<std::string, T> &resources)
+    virtual void loadAll(robin_hood::unordered_map<std::string, T> &&resources)
     {
-        for (const auto&[key, resource] : resources) {
+        for (const auto &[key, resource]: resources) {
             load(key, resource);
         }
     }
